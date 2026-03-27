@@ -55,16 +55,14 @@ The user interacts primarily with the **Architect** (design phase) and the **Dev
 
 ## Installation
 
-Copy (or symlink) the skill files to your Claude Code skills directory:
+Symlink the skill directories to your Claude Code skills directory (symlinks mean edits to this repo are reflected immediately):
 
 ```bash
-# Copy
-cp skills/*.md ~/.claude/skills/
+mkdir -p ~/.claude/skills
 
-# Or symlink (changes to this repo reflect immediately)
-ln -s $(pwd)/skills/architect.md ~/.claude/skills/architect.md
-ln -s $(pwd)/skills/planner.md   ~/.claude/skills/planner.md
-ln -s $(pwd)/skills/developer.md ~/.claude/skills/developer.md
+ln -s $(pwd)/skills/architect ~/.claude/skills/architect
+ln -s $(pwd)/skills/planner   ~/.claude/skills/planner
+ln -s $(pwd)/skills/developer ~/.claude/skills/developer
 ```
 
 Verify with `/help` in Claude Code — the three skills should appear in the list.
@@ -128,14 +126,19 @@ All decisions made between agents are logged in `AGENT_LOG.md`. This provides a 
 agentic-dev-workflow/
   README.md
   skills/
-    architect.md       ← /architect skill definition
-    planner.md         ← /planner skill definition
-    developer.md       ← /developer skill definition
+    architect/
+      SKILL.md                  ← /architect skill
+    planner/
+      SKILL.md                  ← /planner skill
+      references/formats.md     ← TASKS.md and DEVELOPMENT_PLAN.md formats
+    developer/
+      SKILL.md                  ← /developer skill
+      references/formats.md     ← DEVLOG, AGENT_LOG, DEVIATIONS formats
   templates/
     DEVELOPMENT_PLAN.md
     TASKS.md
     AGENT_LOG.md
     DEVIATIONS.md
     CLARIFICATIONS.md
-    CLAUDE.md          ← project CLAUDE.md template
+    CLAUDE.md                   ← project CLAUDE.md template
 ```
