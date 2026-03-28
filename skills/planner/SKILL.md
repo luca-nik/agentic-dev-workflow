@@ -77,7 +77,7 @@ Read agentic/logs/AGENT_LOG.md for decision history.
 Question from Planner: [question]
 Context: [why this came up — what Developer was implementing, what gap was found]
 
-Provide a concrete architectural decision. Update the relevant blueprint in agentic/blueprints/ if the decision changes or clarifies it. Return a single clear statement.
+Try to resolve from the available context first. If the context is insufficient to make a sound architectural decision, ask the user — structural decisions require human judgment and should not be guessed at. Update the relevant blueprint in agentic/blueprints/ once the decision is made. Return the decision as a clear statement.
 ```
 
 Then write the decision to `agentic/logs/AGENT_LOG.md` with `Escalated to Architect: yes` and return it to Developer.
