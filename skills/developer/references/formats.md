@@ -1,6 +1,6 @@
 # Developer — Log Formats
 
-## DEVLOG.md
+## agentic/logs/DEVLOG.md
 
 Append at session start (before any code changes):
 ```markdown
@@ -21,7 +21,7 @@ Subagent calls: [N Planner, N Architect]
 
 ---
 
-## AGENT_LOG.md — Pre-call entry (written by Developer before spawning Planner)
+## agentic/logs/AGENT_LOG.md — Pre-call entry (written by Developer before spawning Planner)
 
 ```markdown
 ## [YYYY-MM-DDTHH:MM:SS] — Developer → Planner
@@ -39,7 +39,7 @@ The Planner fills in the remaining fields when it responds.
 
 ---
 
-## DEVIATIONS.md entry
+## agentic/logs/DEVIATIONS.md entry
 
 ```markdown
 ## DEV-[NNN] — [YYYY-MM-DD]
