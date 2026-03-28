@@ -14,26 +14,67 @@ Most AI-assisted development fails at scale because the agent either:
 
 This workflow solves it with a **decision authority matrix**: each agent knows exactly which decisions it owns, which to delegate up the chain, and when (rarely) to ask the user.
 
-The user interacts primarily with the **Architect** (design phase) and the **Developer** (implementation phase). The Planner is mostly invisible — spawned on demand as a subagent.
+The user interacts primarily with the **Architect** (design phase) and reviews readiness reports from **Planner** and **Developer** before each phase begins. The subagent chain resolves as much as possible before surfacing anything to the user.
+
+---
+
+## The Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. DESIGN                                                   │
+│                                                             │
+│  User ──► /architect                                        │
+│           asks questions → writes agentic/blueprints/       │
+│           user confirms each decision                       │
+└─────────────────────────────┬───────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  2. PLAN                                                    │
+│                                                             │
+│  User ──► /planner                                          │
+│           readiness check on blueprints                     │
+│           gaps? ──► Architect subagent resolves             │
+│           still blocked? ──► reports to user                │
+│           user approves ──► writes agentic/plan/            │
+└─────────────────────────────┬───────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  3. IMPLEMENT                                               │
+│                                                             │
+│  User ──► /developer                                        │
+│           readiness check on tasks                          │
+│           issues? ──► Planner subagent resolves             │
+│                       (Planner may spawn Architect)         │
+│           still blocked? ──► reports to user                │
+│           user approves ──► implements sequentially         │
+│           blocked mid-session? ──► Planner subagent         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Each phase gate works the same way: **the agent surfaces, the user decides, the agent acts.** The subagent chain resolves as much as possible before reaching the user.
 
 ---
 
 ## The Three Agents
 
-### Architect
-**When:** Project start, major redesign, or when a blueprint needs updating.
-**What it produces:** `*_BLUEPRINT.md` files — scope, API contracts, data structures, architectural decisions.
-**Interaction style:** Asks focused questions, waits for confirmation before writing. Never proceeds without user sign-off on major decisions.
+### Architect `/architect`
+**Role:** Design collaborator. Discusses requirements, proposes architecture, writes blueprints.
+**Produces:** `agentic/blueprints/*_BLUEPRINT.md` — scope, API contracts, data structures, architectural decisions.
+**Interaction:** Asks focused questions before proposing anything. Waits for user confirmation before writing. Never proceeds on a major decision without sign-off.
+**Review mode:** When asked to review, audits all blueprints for completeness and consistency, checks whether `DEVIATIONS.md` entries require blueprint updates, reports findings to user.
 
-### Planner
-**When:** After blueprints are finalized, before implementation begins. Also spawned on-demand by Developer.
-**What it produces:** `DEVELOPMENT_PLAN.md`, `TASKS.md`.
-**Interaction style:** Mostly autonomous. Escalates to Architect subagent when blueprint gaps arise. Only reaches the user if genuinely blocked.
+### Planner `/planner`
+**Role:** Bridge between design and implementation. Translates blueprints into an executable plan.
+**Produces:** `agentic/plan/DEVELOPMENT_PLAN.md`, `agentic/plan/TASKS.md`.
+**Interaction:** Runs a readiness check on blueprints at startup — spawns Architect subagent to resolve gaps, then reports to user before planning. Also spawned on-demand by Developer when implementation hits a blocking question.
 
-### Developer
-**When:** During implementation.
-**What it does:** Reads TASKS.md, implements sequentially, marks tasks complete, logs everything.
-**Interaction style:** Autonomous. Spawns Planner subagent when blocked. Uses `AskUserQuestion` only as a last resort.
+### Developer `/developer`
+**Role:** Autonomous implementer. Reads tasks, writes code, logs everything.
+**Produces:** Working code + `agentic/logs/DEVLOG.md` updates.
+**Interaction:** Runs a readiness check on tasks at startup — spawns Planner subagent to resolve issues, then reports to user before implementing. During implementation, spawns Planner for any blocking question. Reaches the user only as a last resort.
 
 ---
 
@@ -44,7 +85,7 @@ The user interacts primarily with the **Architect** (design phase) and the **Dev
 | Implementation details within a function | ✓ | | | |
 | New file/module not in the plan | | ✓ | | |
 | API contract change | | ✓ | | |
-| New dependency | | ✓ | | |
+| New dependency needed | | ✓ | | |
 | Blueprint ambiguity (resolvable from context) | | ✓ | | |
 | Conflicting requirements between blueprints | | | ✓ | |
 | New requirement not in any blueprint | | | ✓ | |
@@ -53,17 +94,50 @@ The user interacts primarily with the **Architect** (design phase) and the **Dev
 
 ---
 
+## Project Folder Structure
+
+All workflow documents are stored in an `agentic/` folder at the project root — visible and versioned alongside the code:
+
+```
+your-project/
+  agentic/
+    blueprints/       ← *_BLUEPRINT.md files (written by Architect)
+    plan/             ← DEVELOPMENT_PLAN.md, TASKS.md (written by Planner)
+    logs/             ← AGENT_LOG.md, DEVLOG.md, DEVIATIONS.md, CLARIFICATIONS.md
+  ... your source code ...
+```
+
+The agents create `agentic/` and its subdirectories automatically if they don't exist.
+
+### What each file is for
+
+| File | Purpose |
+|------|---------|
+| `agentic/blueprints/*_BLUEPRINT.md` | Architecture specs — scope, interfaces, data models, decisions |
+| `agentic/plan/DEVELOPMENT_PLAN.md` | Phases, milestones, risks, open questions |
+| `agentic/plan/TASKS.md` | Granular task checklist for Developer |
+| `agentic/logs/AGENT_LOG.md` | Every inter-agent decision — the audit trail |
+| `agentic/logs/DEVLOG.md` | Developer session log — what was implemented, what was skipped |
+| `agentic/logs/DEVIATIONS.md` | Every case where implementation differed from blueprint |
+| `agentic/logs/CLARIFICATIONS.md` | Blueprint ambiguities that were resolved without a blueprint change |
+
+---
+
 ## Installation
 
-Symlink the skill directories to your Claude Code skills directory (symlinks mean edits to this repo are reflected immediately):
+Clone the repo and symlink the skill directories to your Claude Code skills directory:
 
 ```bash
-mkdir -p ~/.claude/skills
+git clone https://github.com/luca-nik/agentic-dev-workflow.git
+cd agentic-dev-workflow
 
+mkdir -p ~/.claude/skills
 ln -s $(pwd)/skills/architect ~/.claude/skills/architect
 ln -s $(pwd)/skills/planner   ~/.claude/skills/planner
 ln -s $(pwd)/skills/developer ~/.claude/skills/developer
 ```
+
+Symlinks mean any update to this repo is reflected immediately — no reinstall needed.
 
 Verify with `/help` in Claude Code — the three skills should appear in the list.
 
@@ -71,52 +145,48 @@ Verify with `/help` in Claude Code — the three skills should appear in the lis
 
 ## Starting a New Project
 
-**Step 1 — Design**
+**Step 1 — Set up project files**
 
+Copy the templates to your project root:
+
+```bash
+cp templates/CLAUDE.md your-project/CLAUDE.md   # merge with existing if needed
+```
+
+The `agentic/` folder will be created automatically by the agents.
+
+**Step 2 — Design**
+
+Open Claude Code in your project directory and run:
 ```
 /architect
 ```
+The Architect asks focused questions, then writes blueprints to `agentic/blueprints/`. Each decision requires your confirmation before being written.
 
-The Architect reads your existing files and asks questions. Answer them. When done, it writes the blueprint files. Repeat until the design is solid.
-
-**Step 2 — Plan**
+**Step 3 — Plan**
 
 ```
 /planner
 ```
+The Planner checks whether the blueprints are complete enough to plan from. If there are gaps, it resolves them with an Architect subagent and reports to you. Once you approve, it produces `agentic/plan/DEVELOPMENT_PLAN.md` and `agentic/plan/TASKS.md`.
 
-The Planner reads the blueprints and produces `DEVELOPMENT_PLAN.md` and `TASKS.md`. Review them. Adjust if needed.
-
-**Step 3 — Implement**
+**Step 4 — Implement**
 
 ```
 /developer
 ```
-
-The Developer picks up `TASKS.md` and implements. It will spawn Planner (and Architect) subagents autonomously when blocked. You only get interrupted if the agents can't resolve something.
-
----
-
-## Project Files
-
-Copy templates to your project root:
-
-```bash
-cp templates/DEVELOPMENT_PLAN.md  your-project/
-cp templates/TASKS.md             your-project/
-cp templates/AGENT_LOG.md         your-project/
-cp templates/DEVIATIONS.md        your-project/
-cp templates/CLARIFICATIONS.md    your-project/
-cp templates/CLAUDE.md            your-project/   # rename/merge with existing CLAUDE.md
-```
+The Developer checks whether the tasks are executable, resolves issues via Planner subagent, reports to you, then implements sequentially. It spawns Planner (who may spawn Architect) for any blocker. You only get interrupted if the full chain is stuck.
 
 ---
 
-## Inter-Agent Conversation Logging
+## Audit Trail
 
-All decisions made between agents are logged in `AGENT_LOG.md`. This provides a full audit trail of why implementation choices were made — useful for liability, onboarding new team members, and debugging divergence from blueprints.
+`agentic/logs/AGENT_LOG.md` records every decision made between agents — what the question was, what was decided, who was consulted. This gives you a full audit trail of why implementation choices were made, useful for:
+- Understanding why the code looks the way it does
+- Onboarding new contributors
+- Tracking liability when agents deviate from blueprints
 
-`DEVIATIONS.md` records every case where the implementation differs from what the blueprint specified.
+`agentic/logs/DEVIATIONS.md` records every case where the implementation differed from what the blueprint specified, and why.
 
 ---
 
@@ -135,10 +205,10 @@ agentic-dev-workflow/
       SKILL.md                  ← /developer skill
       references/formats.md     ← DEVLOG, AGENT_LOG, DEVIATIONS formats
   templates/
-    DEVELOPMENT_PLAN.md
-    TASKS.md
+    CLAUDE.md                   ← project CLAUDE.md template
     AGENT_LOG.md
     DEVIATIONS.md
     CLARIFICATIONS.md
-    CLAUDE.md                   ← project CLAUDE.md template
+    DEVELOPMENT_PLAN.md
+    TASKS.md
 ```
