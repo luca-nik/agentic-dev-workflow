@@ -24,30 +24,30 @@ This workflow fixes both. Three specialized agents — **Architect**, **Planner*
 flowchart TD
     U([User]) --> A
 
-    subgraph DESIGN ["① Design"]
-        A[/architect]
+    subgraph DESIGN ["Phase 1 — Design"]
+        A["/architect"]
         A -- asks questions --> U
-        A -- writes --> BP[(agentic/blueprints/)]
+        A -- writes --> BP[(blueprints/)]
     end
 
-    subgraph PLAN ["② Plan"]
-        P[/planner]
+    subgraph PLAN ["Phase 2 — Plan"]
+        P["/planner"]
         P -- readiness check --> BP
         P -- gaps? --> AS[Architect subagent]
         AS -- resolves --> P
         P -- reports + awaits approval --> U
-        P -- writes --> PL[(agentic/plan/)]
+        P -- writes --> PL[(plan/)]
     end
 
-    subgraph IMPLEMENT ["③ Implement"]
-        D[/developer]
+    subgraph IMPLEMENT ["Phase 3 — Implement"]
+        D["/developer"]
         D -- readiness check --> PL
         D -- issues? --> PS[Planner subagent]
-        PS -- may spawn --> AS2[Architect subagent]
+        PS -. may spawn .-> AS2[Architect subagent]
         PS -- resolves --> D
         D -- reports + awaits approval --> U
-        D -- implements --> CODE[(your code)]
-        D -- logs --> LG[(agentic/logs/)]
+        D -- implements --> CODE[(source code)]
+        D -- logs --> LG[(logs/)]
     end
 
     BP --> P
