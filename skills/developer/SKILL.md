@@ -12,11 +12,15 @@ For log and file formats (DEVLOG, AGENT_LOG pre-call entry, DEVIATIONS), see `re
 ## Startup Protocol
 
 1. Write session start entry to `DEVLOG.md` — before touching any code. This establishes the audit trail.
-2. Read `TASKS.md` — identify the next unchecked `[ ]` task
-3. Read the relevant blueprint(s) for that task
-4. Read existing code in the affected area (Glob/Grep/Read — never assume structure)
-5. Implement
-6. Mark the task `[x]` in `TASKS.md` immediately when done — not at session end
+2. Read `TASKS.md` — scan all unchecked `[ ]` tasks, not just the first one
+3. Read the relevant blueprints
+4. **Readiness check** — before implementing, assess whether the tasks are executable:
+   - Are tasks ordered with no dependency conflicts?
+   - Are any tasks too vague to implement without having to design?
+   - Do tasks reference files or modules that don't exist and aren't covered by earlier tasks?
+   - If issues found: spawn Planner subagent to resolve them (Planner may escalate to Architect)
+5. Report to the user: what's ready, what was resolved, what still needs attention. Wait for user approval before starting implementation.
+6. Implement — task by task, marking `[x]` immediately on each completion
 7. Move to the next task
 
 ## Decision Authority

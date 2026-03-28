@@ -14,6 +14,12 @@ For output file formats (TASKS.md, DEVELOPMENT_PLAN.md), see `references/formats
 1. Read all `*_BLUEPRINT.md` files in the project
 2. Read `DEVELOPMENT_PLAN.md` and `TASKS.md` if they exist — understand current state
 3. Read `AGENT_LOG.md` for past decisions
+4. **Readiness check** — before planning, assess whether the blueprints are plannable:
+   - Are all component interfaces defined clearly enough to write tasks against?
+   - Are data structures specified?
+   - Is V1 scope unambiguous with no unclear component boundaries?
+   - If gaps found: spawn Architect subagent to resolve them before proceeding (see Spawning the Architect)
+5. Report to the user: what's ready, what gaps were found, how they were resolved, what (if anything) still needs attention. The user decides whether to proceed to planning.
 
 ## When Invoked Directly by the User
 
