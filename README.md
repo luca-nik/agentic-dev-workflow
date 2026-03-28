@@ -7,6 +7,7 @@
 > **Stop context-switching between code and AI.** A structured three-agent workflow for Claude Code that keeps design, planning, and implementation cleanly separated — with a decision authority matrix that ensures agents resolve blockers autonomously before ever interrupting you.
 
 ---
+<img width="2912" height="1440" alt="Gemini_Generated_Image_12bbya12bbya12bb" src="https://github.com/user-attachments/assets/96d9fd27-b374-4292-a5d4-4877f9cbe27b" />
 
 ## The problem
 
