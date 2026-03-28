@@ -34,6 +34,8 @@ flowchart TD
         P["/planner"]
         P -- readiness check --> BP
         P -- gaps? --> AS[Architect subagent]
+        AS -- needs user input? --> U
+        U -- answers --> AS
         AS -- resolves --> P
         P -- reports + awaits approval --> U
         P -- writes --> PL[(plan/)]
@@ -44,6 +46,8 @@ flowchart TD
         D -- readiness check --> PL
         D -- issues? --> PS[Planner subagent]
         PS -. may spawn .-> AS2[Architect subagent]
+        AS2 -- needs user input? --> U
+        U -- answers --> AS2
         PS -- resolves --> D
         D -- reports + awaits approval --> U
         D -- implements --> CODE[(source code)]
@@ -61,13 +65,13 @@ Each phase gate follows the same rule: **agent surfaces findings → user decide
 ## The Three Agents
 
 ### `/architect` — Design collaborator
-Asks focused questions, proposes one clear recommendation per decision, writes blueprints. Never writes code. Never proceeds without your sign-off. When asked to review, audits all blueprints for completeness and consistency.
+Asks focused questions, proposes one clear recommendation per decision, writes blueprints. Never writes code. Never proceeds without your sign-off. When asked to review, audits all blueprints for completeness and consistency. **Always asks the user when context is insufficient** — even when spawned as a subagent. Structural decisions are never guessed at.
 
 ### `/planner` — Bridge between design and implementation
-Checks blueprints are plannable before planning. Resolves gaps via Architect subagent. Produces `DEVELOPMENT_PLAN.md` and `TASKS.md`. Also spawned on-demand by Developer during implementation.
+Checks blueprints are plannable before planning. Resolves gaps via Architect subagent (who may surface questions to the user). Produces `DEVELOPMENT_PLAN.md` and `TASKS.md`. Also spawned on-demand by Developer during implementation.
 
 ### `/developer` — Autonomous implementer
-Checks tasks are executable before starting. Implements sequentially, marks tasks complete immediately, logs everything. Spawns Planner for any blocker — reaching you only as a last resort.
+Checks tasks are executable before starting. Implements sequentially, marks tasks complete immediately, logs everything. Spawns Planner for any blocker — reaching you only as a last resort. The only agent that truly shields the user from implementation noise.
 
 ---
 
