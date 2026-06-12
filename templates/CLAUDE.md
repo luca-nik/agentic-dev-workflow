@@ -24,7 +24,7 @@ agentic/
 | `agentic/plan/TASKS.md` | Granular task checklist | Planner |
 | `agentic/logs/AGENT_LOG.md` | Inter-agent decision log | Developer + Planner |
 | `agentic/logs/DEVIATIONS.md` | Implementation deviations from blueprint | Developer |
-| `agentic/logs/CLARIFICATIONS.md` | Resolved blueprint ambiguities | Planner / Developer |
+| `agentic/logs/CLARIFICATIONS.md` | Resolved blueprint ambiguities | Planner |
 | `agentic/logs/DEVLOG.md` | Developer session log | Developer |
 
 ---
@@ -48,7 +48,8 @@ Planner and Architect are also spawned automatically as subagents by Developer �
 3. Do not modify `agentic/blueprints/` during implementation — route through Planner → Architect
 4. Log all deviations in `agentic/logs/DEVIATIONS.md` immediately
 5. Mark tasks complete in `agentic/plan/TASKS.md` as they are done — not at session end
-6. Write to `agentic/logs/AGENT_LOG.md` before every subagent call
+6. Append a question entry to `agentic/logs/AGENT_LOG.md` before every subagent call — the log is append-only; the responder appends its own response entry and assigns the Decision ID there
+7. Subagents never address the user directly — a blocked subagent returns `NEEDS_USER_INPUT` to its spawner, and only the top-level agent asks the user
 
 ---
 

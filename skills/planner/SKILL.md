@@ -38,23 +38,21 @@ Produce `agentic/plan/DEVELOPMENT_PLAN.md` and `agentic/plan/TASKS.md`. Then rev
 
 ## When Invoked as Subagent by Developer
 
-You receive a specific blocking question. Your job:
+You receive a specific blocking question. As a subagent you cannot talk to the user — your output returns only to your spawner. Your job:
 
 1. Read the relevant blueprints and any existing code mentioned in the context
-2. Write your reasoning and decision to `agentic/logs/AGENT_LOG.md` **before** returning your answer — this is the audit trail that makes the workflow accountable
+2. Append your response entry to `agentic/logs/AGENT_LOG.md` **before** returning your answer — this is the audit trail that makes the workflow accountable
 3. Return one concrete decision with rationale — not options. The Developer needs to act, not choose.
 4. If the question exceeds your authority, spawn an Architect subagent (see below)
-5. Escalate to the user only if Architect is also blocked and it's genuinely a product decision
+5. If the Architect returns `NEEDS_USER_INPUT`, propagate it: append your response entry with `Escalated to User: yes`, then return the sentinel block unchanged to your spawner. Never swallow it, never guess in its place.
 
 ## AGENT_LOG Entry
 
-Append to `agentic/logs/AGENT_LOG.md` before responding:
+The log is append-only — never edit past entries, including the question entry your spawner wrote. Append your own response entry before responding:
 
 ```markdown
-## [YYYY-MM-DDTHH:MM:SS] — [From] → [To]
+## [YYYY-MM-DDTHH:MM:SS] — Planner (response to [question entry timestamp])
 
-**Context:** [what Developer was implementing]
-**Question:** [the blocking question]
 **Reasoning:** [your analysis of blueprints/code]
 **Decision:** [the concrete answer]
 **Escalated to Architect:** yes / no
@@ -62,14 +60,20 @@ Append to `agentic/logs/AGENT_LOG.md` before responding:
 **Decision ID:** DEC-[NNN]
 ```
 
-Start at DEC-001; increment from the last entry in the file.
+Decision IDs are assigned only in response entries, by the responding agent. Start at DEC-001; increment from the last DEC in the file. If you spawned the Architect, its response entry carries its own DEC — reference it in your Reasoning. Log-writing subagent calls are strictly sequential: never run two concurrently.
+
+## Recording Clarifications
+
+You are the only writer of `agentic/logs/CLARIFICATIONS.md`. Whenever you resolve an interpretive ambiguity — the blueprint was correct but unclear, and no blueprint change is needed — append a CLR entry (format in that file's header; create the file from `templates/CLARIFICATIONS.md` if missing). This applies both when invoked directly and as a subagent. If the resolution requires changing a blueprint, that is not a clarification — escalate to the Architect.
 
 ## Spawning the Architect
 
 When a question exceeds your authority — conflicting blueprints, new requirement, interface change affecting multiple components, wrong fundamental assumption — spawn via Agent tool:
 
 ```
-You are the Architect agent for [project name].
+Read ~/.claude/skills/architect/SKILL.md and follow it — you are the Architect
+agent for [project name], invoked as a subagent. (Adjust the skill path if the
+workflow's skills are installed elsewhere.)
 
 Read these blueprint files: [list from agentic/blueprints/]
 Read agentic/logs/AGENT_LOG.md for decision history.
@@ -77,10 +81,15 @@ Read agentic/logs/AGENT_LOG.md for decision history.
 Question from Planner: [question]
 Context: [why this came up — what Developer was implementing, what gap was found]
 
-Try to resolve from the available context first. If the context is insufficient to make a sound architectural decision, ask the user — structural decisions require human judgment and should not be guessed at. Update the relevant blueprint in agentic/blueprints/ once the decision is made. Return the decision as a clear statement.
+Try to resolve from the available context first. If you can decide: append your
+response entry to agentic/logs/AGENT_LOG.md (assign the next DEC ID), update the
+relevant blueprint in agentic/blueprints/, and return the decision as a clear
+statement. If the context is insufficient for a sound architectural decision, do
+not guess and do not try to ask the user — you cannot reach them. Return
+NEEDS_USER_INPUT as specified in your skill file.
 ```
 
-Then write the decision to `agentic/logs/AGENT_LOG.md` with `Escalated to Architect: yes` and return it to Developer.
+Append the question entry to `agentic/logs/AGENT_LOG.md` **before** spawning. When the Architect returns: append your own response entry (`Escalated to Architect: yes`, referencing the Architect's DEC) and return the decision to Developer — or propagate the `NEEDS_USER_INPUT` block unchanged if that is what came back.
 
 ## Decision Authority
 
@@ -88,4 +97,4 @@ Then write the decision to `agentic/logs/AGENT_LOG.md` with `Escalated to Archit
 
 **Escalate to Architect:** conflicting blueprints, new requirements not covered anywhere, interface changes affecting multiple components, fundamental design assumptions that are wrong.
 
-**Escalate to User:** only after Architect is blocked, and only for product/business judgments or compliance sign-offs that require explicit human decision.
+**Escalate to User:** only after Architect is blocked, and only for product/business judgments or compliance sign-offs that require explicit human decision. When invoked as a subagent, "escalate to user" means returning `NEEDS_USER_INPUT` to your spawner — only the top-level agent talks to the user. When the user invoked you directly, ask them directly.

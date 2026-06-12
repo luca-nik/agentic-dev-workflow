@@ -21,21 +21,17 @@ Subagent calls: [N Planner, N Architect]
 
 ---
 
-## agentic/logs/AGENT_LOG.md — Pre-call entry (written by Developer before spawning Planner)
+## agentic/logs/AGENT_LOG.md — Question entry (written by Developer before spawning Planner)
 
 ```markdown
-## [YYYY-MM-DDTHH:MM:SS] — Developer → Planner
+## [YYYY-MM-DDTHH:MM:SS] — Developer → Planner (question)
 
 **Context:** Implementing [TASK-NNN: description]
 **Question:** [blocking question]
 **What I established:** [analysis before escalating]
-**Decision:** [to be filled by Planner]
-**Escalated to Architect:** [to be filled by Planner]
-**Escalated to User:** [to be filled by Planner]
-**Decision ID:** DEC-[NNN]
 ```
 
-The Planner fills in the remaining fields when it responds.
+No Decision ID and no fields left "to be filled" — the log is append-only and past entries are never edited. The Planner appends its own response entry (referencing this entry's timestamp) and assigns the Decision ID there.
 
 ---
 

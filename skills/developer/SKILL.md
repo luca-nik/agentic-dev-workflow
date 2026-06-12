@@ -57,21 +57,23 @@ This is the core of your judgment. Know when to act and when to escalate.
 The reason to route through Planner rather than asking the user directly: the user shouldn't need to think about implementation-level questions. Planner has the blueprints and can decide. Save the user for things that genuinely require their judgment.
 
 **AskUserQuestion — last resort:**
-- Only after Planner returns "requires user input"
+- Only when a spawned Planner returns `NEEDS_USER_INPUT` (its own, or propagated from an Architect). Subagents cannot talk to the user — you are the top-level agent, so asking is your job: relay the question as returned, then re-spawn the Planner with the same context plus the user's answer.
 - Security or compliance implications
 - Irreducible product preference
 - Batch any unrelated questions — never interrupt once per question
 
 ## Spawning the Planner
 
-Before calling the Agent tool, write the pre-call entry to `agentic/logs/AGENT_LOG.md` (format in `references/formats.md`). Then:
+Before calling the Agent tool, append the question entry to `agentic/logs/AGENT_LOG.md` (format in `references/formats.md`). Log-writing subagent calls are strictly sequential — never run two concurrently. Then:
 
 ```python
 Agent(
     subagent_type="general-purpose",
     description="Planner — resolve blocking question",
     prompt="""
-You are the Planner agent for [project name].
+Read ~/.claude/skills/planner/SKILL.md and follow it — you are the Planner agent
+for [project name], invoked as a subagent. (Adjust the skill path if the
+workflow's skills are installed elsewhere.)
 
 Read before answering:
 - [relevant *_BLUEPRINT.md files]
@@ -82,10 +84,15 @@ Context: Developer was implementing [TASK-NNN: description].
 Blocking question: [specific question]
 What I established: [your analysis]
 
-Give a concrete decision (not options). Write reasoning + decision to AGENT_LOG.md before responding. Spawn Architect subagent if needed. Escalate to user only if genuinely blocked.
+Give a concrete decision (not options). Append your response entry to
+AGENT_LOG.md (you assign the Decision ID) before responding. Spawn an Architect
+subagent if the question exceeds your authority. You cannot reach the user: if
+genuinely blocked, return NEEDS_USER_INPUT as specified in your skill file.
 """
 )
 ```
+
+If the Planner returns `NEEDS_USER_INPUT`, ask the user via AskUserQuestion and re-spawn the Planner with the same context plus the user's answer.
 
 ## Code Quality
 

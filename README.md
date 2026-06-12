@@ -35,10 +35,10 @@ flowchart TD
         P["/planner"]
         P -- readiness check --> BP
         P -- gaps? --> AS[Architect subagent]
-        AS -- needs user input? --> U
-        U -- answers --> AS
         AS -- resolves --> P
-        P -- reports + awaits approval --> U
+        AS -. "NEEDS_USER_INPUT" .-> P
+        P -- "surfaces questions + awaits approval" --> U
+        U -- answers --> P
         P -- writes --> PL[(plan/)]
     end
 
@@ -47,10 +47,11 @@ flowchart TD
         D -- readiness check --> PL
         D -- issues? --> PS[Planner subagent]
         PS -. may spawn .-> AS2[Architect subagent]
-        AS2 -- needs user input? --> U
-        U -- answers --> AS2
+        AS2 -. "NEEDS_USER_INPUT" .-> PS
         PS -- resolves --> D
-        D -- reports + awaits approval --> U
+        PS -. "NEEDS_USER_INPUT" .-> D
+        D -- "asks (last resort) + awaits approval" --> U
+        U -- answers --> D
         D -- implements --> CODE[(source code)]
         D -- logs --> LG[(logs/)]
     end
@@ -59,14 +60,16 @@ flowchart TD
     PL --> D
 ```
 
-Each phase gate follows the same rule: **agent surfaces findings → user decides → agent acts.** The subagent chain resolves as much as possible before reaching you.
+Each phase gate follows the same rule: **agent surfaces findings → user decides → agent acts.** The subagent chain resolves as much as possible before reaching you. Subagents never talk to you directly — a blocked subagent returns `NEEDS_USER_INPUT` up the chain, and the top-level agent asks.
+
+> The `SKILL.md` files are the normative specification of agent behavior; this README is a descriptive overview.
 
 ---
 
 ## The Three Agents
 
 ### `/architect` — Design collaborator
-Asks focused questions, proposes one clear recommendation per decision, writes blueprints. Never writes code. Never proceeds without your sign-off. When asked to review, audits all blueprints for completeness and consistency. **Always asks the user when context is insufficient** — even when spawned as a subagent. Structural decisions are never guessed at.
+Asks focused questions, proposes one clear recommendation per decision, writes blueprints. Never writes code. Never proceeds without your sign-off. When asked to review, audits all blueprints for completeness and consistency. **Structural decisions are never guessed at**: when context is insufficient — even as a subagent — it escalates to you (as a subagent, by returning `NEEDS_USER_INPUT` up the chain; the top-level agent asks).
 
 ### `/planner` — Bridge between design and implementation
 Checks blueprints are plannable before planning. Resolves gaps via Architect subagent (who may surface questions to the user). Produces `DEVELOPMENT_PLAN.md` and `TASKS.md`. Also spawned on-demand by Developer during implementation.
@@ -94,15 +97,19 @@ Checks tasks are executable before starting. Implements sequentially, marks task
 
 ## In Action
 
-After a Developer session, `agentic/logs/AGENT_LOG.md` captures every inter-agent decision:
+After a Developer session, `agentic/logs/AGENT_LOG.md` captures every inter-agent exchange as an append-only question/response pair:
 
 ```markdown
-## 2026-03-28T14:32:11 — Developer → Planner
+## 2026-03-28T14:32:11 — Developer → Planner (question)
 
 **Context:** Implementing TASK-004: add image export to report renderer
 **Question:** Blueprint specifies PNG export but doesn't say base64-embedded or file path. Two approaches have different implications for the ZIP bundle.
-**Reasoning:** Blueprint §4 says bundle must be self-contained. Base64 satisfies this; file paths would create fragile dependencies.
-**Decision:** Embed as base64 — self-contained bundle is an explicit architectural requirement.
+**What I established:** Blueprint §4 says bundle must be self-contained; file paths would create fragile dependencies.
+
+## 2026-03-28T14:33:47 — Planner (response to 2026-03-28T14:32:11)
+
+**Reasoning:** Blueprint §4 makes self-containment an explicit architectural requirement. Base64 satisfies it; file paths violate it.
+**Decision:** Embed as base64.
 **Escalated to Architect:** no
 **Escalated to User:** no
 **Decision ID:** DEC-007
