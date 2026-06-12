@@ -51,6 +51,7 @@ Planner and Architect are also spawned automatically as subagents by Developer �
 5. Mark tasks complete in `agentic/plan/TASKS.md` as they are done — not at session end
 6. Append a question entry to `agentic/logs/AGENT_LOG.md` before every subagent call — the log is append-only; the responder appends its own response entry and assigns the Decision ID there
 7. Subagents never address the user directly — a blocked subagent returns `NEEDS_USER_INPUT` to its spawner, and only the top-level agent asks the user
+8. One commit per completed task (`TASK-NNN: title`), made after the task's acceptance commands pass — when the project is a git repository
 
 ---
 

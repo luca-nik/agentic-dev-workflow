@@ -43,7 +43,7 @@ flowchart TD
     end
 
     subgraph IMPLEMENT ["Phase 3 — Implement"]
-        D["/developer"]
+        D["/developer (orchestrator)"]
         D -- readiness check --> PL
         D -- issues? --> PS[Planner subagent]
         PS -. may spawn .-> AS2[Architect subagent]
@@ -52,7 +52,9 @@ flowchart TD
         PS -. "NEEDS_USER_INPUT" .-> D
         D -- "asks (last resort) + awaits approval" --> U
         U -- answers --> D
-        D -- implements --> CODE[(source code)]
+        D -- "fresh executor per task" --> EX[Executor subagent]
+        EX -- implements --> CODE[(source code)]
+        EX -. "NEEDS_DECISION" .-> D
         D -- logs --> LG[(logs/)]
     end
 
@@ -74,8 +76,8 @@ Asks focused questions, proposes one clear recommendation per decision, writes b
 ### `/planner` — Bridge between design and implementation
 Checks blueprints are plannable before planning. Resolves gaps via Architect subagent (who may surface questions to the user). Produces `DEVELOPMENT_PLAN.md` and `TASKS.md`. Also spawned on-demand by Developer during implementation.
 
-### `/developer` — Autonomous implementer
-Checks tasks are executable before starting. Implements sequentially, marks tasks complete immediately, logs everything. Spawns Planner for any blocker — reaching you only as a last resort. The only agent that truly shields the user from implementation noise.
+### `/developer` — Implementation orchestrator
+Validates work orders, then spawns a **fresh executor subagent per task** — clean context every time, model tier chosen per task by the Planner. Re-runs each task's acceptance commands itself before marking it done (an executor's "done" doesn't count), commits per task, and routes blockers to Planner subagents — reaching you only as a last resort. The only agent that truly shields the user from implementation noise.
 
 ---
 

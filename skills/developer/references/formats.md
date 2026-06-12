@@ -8,6 +8,8 @@ Append at session start (before any code changes):
 
 ### Start
 Tasks targeted: TASK-NNN, TASK-NNN, ...
+Conventions brief (seeded from previous session, or empty):
+[the brief]
 ```
 
 Append at session end:
@@ -16,8 +18,19 @@ Append at session end:
 Implemented: [TASK-NNN list]
 Skipped: [list with reason]
 Blockers remaining: [list]
-Subagent calls: [N Planner, N Architect]
+Subagent calls: [N executors, N Planner, N Architect]
+Conventions brief (current — the next session seeds from this):
+[the brief — relevant DEC decisions, doc-contract obligations, naming/test
+conventions observed; hard cap half a page]
 ```
+
+---
+
+## Commits
+
+One commit per completed task, made by the orchestrator **after** the mechanical
+acceptance check passes, message: `TASK-NNN: [title]`. Never batch tasks into one
+commit. If the project is not a git repository, skip and note it in DEVLOG.
 
 ---
 
@@ -47,7 +60,7 @@ No Decision ID and no fields left "to be filled" — the log is append-only and 
 **Decision ID:** DEC-NNN (if Planner was involved) / none
 ```
 
-Deviations are information, not failures. Log them without judgment.
+Deviations are information, not failures. Log them without judgment. The DEV entry is written by the executor that implemented the deviation, as part of its task.
 
 ---
 
