@@ -49,7 +49,13 @@ You read: `TASKS.md`, work orders, `DEVELOPMENT_PLAN.md`, the logs. You do **not
 7. **Human review pause.** If the work order says `Human review: required`, stop and ask the user to review the produced artifact before dispatching anything that depends on it.
 8. **Impacts.** If the executor reported impacts, patch the affected downstream work orders (interface-lines exception applies) or spawn the Planner to re-plan if the impact exceeds a mechanical patch.
 
-Gate tasks run through the same loop — their acceptance commands are the gate.
+**Gate tasks** do not go to a regular executor — they go to the Verifier:
+
+1. Spawn the Verifier (see Spawning the Verifier) on a strong model — finding what is wrong takes more judgment than implementing.
+2. `VERDICT: pass` → run the gate command yourself (mechanical check), commit, mark `[x]`.
+3. `VERDICT: fail` → turn each failure into a fix task: append it to TASKS.md, write a minimal work order (contract = the failing test + the blueprint section it cites; Modify = the implicated files), dispatch a fresh executor. Then re-run the gate. **Two fix rounds maximum**: if the gate fails a third time, spawn the Planner with the full failure history — this is a design defect, not a coding defect.
+4. `VERDICT: blocked` → the blueprint is not testable as written; spawn the Planner (who will escalate to the Architect).
+5. Log Verifier verdicts and `PLANNER GAPS` findings in DEVLOG; route gap findings to the Planner at the next opportunity.
 
 ## Decision Authority
 
@@ -117,6 +123,30 @@ WORKSPACE STATE: [only if NEEDS_DECISION — files touched and their state, or "
 ```
 
 Executors do not write to DEVLOG (yours) or AGENT_LOG (escalations are yours to log). They do write DEVIATIONS entries — the deviation belongs to whoever implemented it.
+
+## Spawning the Verifier
+
+```python
+Agent(
+    subagent_type="general-purpose",
+    description="Verifier — gate of [component]",
+    model="[strong — opus-class]",
+    prompt="""
+Read ~/.claude/skills/verifier/SKILL.md and follow it — you are the Verifier
+for [project name], at the gate of component [X]. (Adjust the skill path if the
+workflow's skills are installed elsewhere.)
+
+Blueprint: agentic/blueprints/[COMPONENT]_BLUEPRINT.md
+Public interface files (signatures only): [files]
+Phase work orders: agentic/plan/tasks/[list] — read their acceptance criteria
+ONLY AFTER writing your own tests from the blueprint.
+Gate command: [command]
+
+Do not read: implementation bodies, the project's unit tests, DEVLOG.md.
+Return the report format from your skill file.
+"""
+)
+```
 
 ## Spawning the Planner
 

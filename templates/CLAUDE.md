@@ -1,6 +1,6 @@
 # [Project Name] — Claude Instructions
 
-This project uses the **agentic-dev-workflow**. Three specialized agents handle design, planning, and implementation.
+This project uses the **agentic-dev-workflow**. Four specialized agents handle design, planning, implementation, and verification.
 
 ---
 
@@ -34,11 +34,12 @@ agentic/
 
 ```
 /architect   → design or update blueprints (talk with user)
-/planner     → create or update agentic/plan/ files
-/developer   → implement tasks from agentic/plan/TASKS.md (autonomous)
+/planner     → create or update agentic/plan/ files (index + work orders)
+/developer   → orchestrate implementation of agentic/plan/TASKS.md (autonomous)
+/verifier    → independent black-box contract check of a component
 ```
 
-Planner and Architect are also spawned automatically as subagents by Developer — you do not need to invoke them manually for blocking questions during implementation.
+Planner, Architect, and Verifier are also spawned automatically as subagents by Developer — you do not need to invoke them manually during implementation. Contract tests written by the Verifier live in `tests/contract/`.
 
 ---
 

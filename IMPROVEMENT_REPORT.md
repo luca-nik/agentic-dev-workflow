@@ -7,7 +7,9 @@ required changes); all blocking changes from the review are folded in below.
 **Phase 1 implemented 2026-06-12** (work orders, component phasing, testable contracts —
 D5, D6, D10, D13 fields, D14).
 **Phase 2 implemented 2026-06-12** (Developer orchestrator, fresh executors, mechanical
-checks, per-task commits — D7, D8, D11, D13 modes). Next: Phase 3 (Verifier).
+checks, per-task commits — D7, D8, D11, D13 modes).
+**Phase 3 implemented 2026-06-12** (Verifier skill + gate protocol — D9, D12).
+Next: Phase 4 (portfolio polish: examples/ from a real session, CI lint).
 **Audience:** this is a working document. It records the problems found in the current
 workflow and the redesign decisions made to fix them. It is written to be reviewed by an
 independent agent for quality control before implementation begins.

@@ -2,9 +2,9 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Claude Code](https://img.shields.io/badge/Claude_Code-skills-blueviolet)
-![Agents](https://img.shields.io/badge/agents-3-orange)
+![Agents](https://img.shields.io/badge/agents-4-orange)
 
-> **Stop context-switching between code and AI.** A structured three-agent workflow for Claude Code that keeps design, planning, and implementation cleanly separated — with a decision authority matrix that ensures agents resolve blockers autonomously before ever interrupting you.
+> **Stop context-switching between code and AI.** A structured four-agent workflow for Claude Code that keeps design, planning, implementation, and verification cleanly separated — with a decision authority matrix that ensures agents resolve blockers autonomously before ever interrupting you.
 
 ---
 <img width="2912" height="1440" alt="Gemini_Generated_Image_12bbya12bbya12bb" src="https://github.com/user-attachments/assets/96d9fd27-b374-4292-a5d4-4877f9cbe27b" />
@@ -15,7 +15,7 @@ When you build with AI agents today, you either:
 - Get interrupted constantly with questions the agent should answer itself
 - Let the agent run loose and come back to find it diverged from what you intended
 
-This workflow fixes both. Three specialized agents — **Architect**, **Planner**, **Developer** — each know exactly what they own, what to delegate, and when (rarely) to ask you.
+This workflow fixes both. Three pipeline agents — **Architect**, **Planner**, **Developer** — plus an independent **Verifier** each know exactly what they own, what to delegate, and when (rarely) to ask you.
 
 ---
 
@@ -55,6 +55,9 @@ flowchart TD
         D -- "fresh executor per task" --> EX[Executor subagent]
         EX -- implements --> CODE[(source code)]
         EX -. "NEEDS_DECISION" .-> D
+        D -- "at component gates" --> V[Verifier subagent]
+        V -- "black-box contract tests" --> CODE
+        V -. "fail → fix tasks" .-> D
         D -- logs --> LG[(logs/)]
     end
 
@@ -68,7 +71,7 @@ Each phase gate follows the same rule: **agent surfaces findings → user decide
 
 ---
 
-## The Three Agents
+## The Agents
 
 ### `/architect` — Design collaborator
 Asks focused questions, proposes one clear recommendation per decision, writes blueprints. Never writes code. Never proceeds without your sign-off. When asked to review, audits all blueprints for completeness and consistency. **Structural decisions are never guessed at**: when context is insufficient — even as a subagent — it escalates to you (as a subagent, by returning `NEEDS_USER_INPUT` up the chain; the top-level agent asks).
@@ -78,6 +81,9 @@ Checks blueprints are plannable before planning. Resolves gaps via Architect sub
 
 ### `/developer` — Implementation orchestrator
 Validates work orders, then spawns a **fresh executor subagent per task** — clean context every time, model tier chosen per task by the Planner. Re-runs each task's acceptance commands itself before marking it done (an executor's "done" doesn't count), commits per task, and routes blockers to Planner subagents — reaching you only as a last resort. The only agent that truly shields the user from implementation noise.
+
+### `/verifier` — Independent auditor (service agent)
+At every component gate, writes **black-box contract tests derived from the blueprint** — deliberately blind to the implementation, its unit tests, and the dev log. An implementer who misreads the spec writes code *and* tests that share the misreading; the Verifier is the second, independent interpretation that catches it. Failures become fix tasks for fresh executors (max two rounds, then it's a design defect for the Planner). Also invocable on demand to audit any existing component. Honest limit: two LLMs share training priors — the Verifier reduces correlated misreading, it doesn't eliminate it; the mechanical checks and your plan approval are the only fully independent verdicts.
 
 ---
 
@@ -166,9 +172,10 @@ git clone https://github.com/luca-nik/agentic-dev-workflow.git
 cd agentic-dev-workflow
 
 mkdir -p ~/.claude/skills
-ln -s $(pwd)/skills/architect ~/.claude/skills/architect
-ln -s $(pwd)/skills/planner   ~/.claude/skills/planner
-ln -s $(pwd)/skills/developer ~/.claude/skills/developer
+ln -sfn $(pwd)/skills/architect ~/.claude/skills/architect
+ln -sfn $(pwd)/skills/planner   ~/.claude/skills/planner
+ln -sfn $(pwd)/skills/developer ~/.claude/skills/developer
+ln -sfn $(pwd)/skills/verifier  ~/.claude/skills/verifier
 ```
 
 Symlinks mean updates to this repo are reflected immediately — no reinstall needed. Verify with `/help` in Claude Code.
@@ -215,6 +222,8 @@ agentic-dev-workflow/
     developer/
       SKILL.md
       references/formats.md
+    verifier/
+      SKILL.md
   templates/
     CLAUDE.md
     AGENT_LOG.md
