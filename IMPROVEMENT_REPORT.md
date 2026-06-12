@@ -4,7 +4,8 @@
 **Status:** independently reviewed (see `IMPROVEMENT_REVIEW.md` — verdict: approve with
 required changes); all blocking changes from the review are folded in below.
 **Phase 0 implemented 2026-06-12** (skills, templates, README synchronized to D1–D4).
-Next: Phase 1.
+**Phase 1 implemented 2026-06-12** (work orders, component phasing, testable contracts —
+D5, D6, D10, D13 fields, D14). Next: Phase 2 (Developer orchestrator).
 **Audience:** this is a working document. It records the problems found in the current
 workflow and the redesign decisions made to fix them. It is written to be reviewed by an
 independent agent for quality control before implementation begins.

@@ -24,23 +24,35 @@
 
 ---
 
-## Phases
+## Components and phases
 
-### Phase 1 — [Name]
+One phase per component, dependency-ordered. The final phase is integration.
 
-**Goal:** [what this phase delivers — one sentence]
-**Deliverable:** [concrete artifact or testable capability]
-**Depends on:** nothing
+### Phase 1 — [Component name]
+
+**Goal:** [what this component delivers — one sentence]
+**Depends on:** nothing / [components, faked until integration]
+**Fakes required:** [FakeX in tests/fakes/ — or none]
+**Gate:** `[named command, e.g. pytest tests/contract/test_<component>.py]` exits 0
 
 See TASKS.md §Phase 1 for the task breakdown.
 
-### Phase 2 — [Name]
+### Phase 2 — [Component name]
 
-**Goal:** [what this phase delivers]
-**Deliverable:** [concrete artifact]
+**Goal:** [what this component delivers]
 **Depends on:** Phase 1
+**Fakes required:** [or none]
+**Gate:** `[named command]` exits 0
 
 See TASKS.md §Phase 2 for the task breakdown.
+
+### Phase N — Integration
+
+**Goal:** replace fakes with real components; system works end-to-end
+**Gate:** `[named end-to-end command]` exits 0
+
+Fake retirement is one explicit task per dependency; integration tests are
+specified here at planning time, never improvised during the endgame.
 
 ---
 

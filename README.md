@@ -115,16 +115,16 @@ After a Developer session, `agentic/logs/AGENT_LOG.md` captures every inter-agen
 **Decision ID:** DEC-007
 ```
 
-And `agentic/plan/TASKS.md` stays current throughout:
+And `agentic/plan/TASKS.md` stays current throughout — one line per task, each linking a self-contained work order:
 
 ```markdown
-## Phase 1 — Core renderer
+## Phase 1 — Renderer
 
-- [x] TASK-001: scaffold renderer module `src/renderer.py`
-- [x] TASK-002: implement HTML section builders `src/sections/`
-- [x] TASK-003: add WeasyPrint PDF export `src/renderer.py`
-- [x] TASK-004: add PNG export with base64 embedding `src/renderer.py`
-- [ ] TASK-005: implement ZIP bundle assembly `src/bundle.py`
+- [x] TASK-001: scaffold renderer module → `tasks/TASK-001.md`
+- [x] TASK-002: implement HTML section builders → `tasks/TASK-002.md`
+- [x] TASK-003: add WeasyPrint PDF export → `tasks/TASK-003.md`
+- [x] TASK-004: add PNG export with base64 embedding → `tasks/TASK-004.md`
+- [ ] TASK-005: GATE — renderer contract tests green → `tasks/TASK-005.md`
 ```
 
 ---
@@ -137,7 +137,7 @@ All workflow documents live in `agentic/` — versioned alongside your code, nev
 your-project/
   agentic/
     blueprints/    ← *_BLUEPRINT.md files (Architect)
-    plan/          ← DEVELOPMENT_PLAN.md, TASKS.md (Planner)
+    plan/          ← DEVELOPMENT_PLAN.md, TASKS.md, tasks/ (Planner)
     logs/          ← AGENT_LOG.md, DEVLOG.md, DEVIATIONS.md, CLARIFICATIONS.md
   src/
   tests/
@@ -146,9 +146,10 @@ your-project/
 
 | File | Purpose |
 |------|---------|
-| `blueprints/*_BLUEPRINT.md` | Scope, interfaces, data models, architectural decisions |
-| `plan/DEVELOPMENT_PLAN.md` | Phases, milestones, risks |
-| `plan/TASKS.md` | Granular task checklist |
+| `blueprints/*_BLUEPRINT.md` | Scope, testable interfaces, data models, architectural decisions |
+| `plan/DEVELOPMENT_PLAN.md` | Component phases, gates, risks |
+| `plan/TASKS.md` | Task index and checklist |
+| `plan/tasks/TASK-NNN.md` | Self-contained work order per task — contract, manifest, acceptance criteria, boundaries |
 | `logs/AGENT_LOG.md` | Every inter-agent decision — full audit trail |
 | `logs/DEVLOG.md` | Developer session log |
 | `logs/DEVIATIONS.md` | Every case where implementation differed from blueprint |
@@ -219,6 +220,7 @@ agentic-dev-workflow/
     CLARIFICATIONS.md
     DEVELOPMENT_PLAN.md
     TASKS.md
+    WORK_ORDER.md
   LICENSE
   README.md
 ```

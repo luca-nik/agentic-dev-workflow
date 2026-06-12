@@ -9,7 +9,7 @@ This project uses the **agentic-dev-workflow**. Three specialized agents handle 
 ```
 agentic/
   blueprints/     ← *_BLUEPRINT.md files (Architect)
-  plan/           ← DEVELOPMENT_PLAN.md, TASKS.md (Planner)
+  plan/           ← DEVELOPMENT_PLAN.md, TASKS.md, tasks/TASK-NNN.md (Planner)
   logs/           ← AGENT_LOG.md, DEVLOG.md, DEVIATIONS.md, CLARIFICATIONS.md (all agents)
 ```
 
@@ -21,7 +21,8 @@ agentic/
 |------|---------|-----------|
 | `agentic/blueprints/*_BLUEPRINT.md` | Architecture and design specifications | Architect |
 | `agentic/plan/DEVELOPMENT_PLAN.md` | Phases, milestones, risks | Planner |
-| `agentic/plan/TASKS.md` | Granular task checklist | Planner |
+| `agentic/plan/TASKS.md` | Task index and checklist | Planner |
+| `agentic/plan/tasks/TASK-NNN.md` | Self-contained work order per task | Planner |
 | `agentic/logs/AGENT_LOG.md` | Inter-agent decision log | Developer + Planner |
 | `agentic/logs/DEVIATIONS.md` | Implementation deviations from blueprint | Developer |
 | `agentic/logs/CLARIFICATIONS.md` | Resolved blueprint ambiguities | Planner |

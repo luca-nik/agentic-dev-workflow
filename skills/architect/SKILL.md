@@ -40,7 +40,7 @@ Asking before designing matters: a blueprint built on wrong assumptions creates 
 
 Every blueprint needs these six sections — they exist to prevent the most common failure modes (missing interface contracts, undocumented scope, hidden assumptions):
 1. **Scope** — what this component does and explicitly does NOT do
-2. **API / Interface** — public contracts (function signatures, data types, return values)
+2. **API / Interface** — public contracts (function signatures, data types, return values), each with **acceptance examples**: concrete input→output pairs, invariants, and error cases. These examples are what contract tests are written from — an interface without them is not plannable.
 3. **Data structures** — key types and schemas with field descriptions
 4. **Architectural decisions** — numbered list, each with rationale
 5. **Dependencies** — what this component needs from other components
@@ -81,6 +81,7 @@ If the user asks to review, audit, or check the current state — rather than de
 
 Check for:
 - Each `agentic/blueprints/*_BLUEPRINT.md` has all six required sections
+- API sections carry acceptance examples — the contract is testable
 - Interfaces between components are consistent (no mismatched contracts across blueprints)
 - `agentic/logs/DEVIATIONS.md` entries that suggest a blueprint needs updating to reflect reality
 - `agentic/logs/CLARIFICATIONS.md` entries that should be incorporated into blueprints permanently

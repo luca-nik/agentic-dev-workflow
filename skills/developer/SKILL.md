@@ -24,7 +24,7 @@ If `agentic/logs/` doesn't exist, create it before writing anything.
 
 1. Write session start entry to `agentic/logs/DEVLOG.md` — before touching any code. This establishes the audit trail.
 2. Read `agentic/plan/TASKS.md` — scan all unchecked `[ ]` tasks, not just the first one
-3. Read the relevant `agentic/blueprints/*_BLUEPRINT.md` files
+3. Read the relevant `agentic/blueprints/*_BLUEPRINT.md` files. Before implementing each task, read its work order `agentic/plan/tasks/TASK-NNN.md` (if present) — it is the task's full definition: contract, read-first manifest, acceptance criteria, boundaries
 4. **Readiness check** — before implementing, assess whether the tasks are executable:
    - Are tasks ordered with no dependency conflicts?
    - Are any tasks too vague to implement without having to design?
