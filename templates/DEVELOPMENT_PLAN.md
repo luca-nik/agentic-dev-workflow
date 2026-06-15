@@ -15,10 +15,12 @@
 ## Scope
 
 **In V1:**
+
 - [item]
 - [item]
 
 **Out of V1 (explicit):**
+
 - [item]
 - [item]
 

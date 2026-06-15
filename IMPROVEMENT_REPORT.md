@@ -9,7 +9,9 @@ D5, D6, D10, D13 fields, D14).
 **Phase 2 implemented 2026-06-12** (Developer orchestrator, fresh executors, mechanical
 checks, per-task commits — D7, D8, D11, D13 modes).
 **Phase 3 implemented 2026-06-12** (Verifier skill + gate protocol — D9, D12).
-Next: Phase 4 (portfolio polish: examples/ from a real session, CI lint).
+**Phase 4 implemented 2026-06-14** (portfolio polish: runnable `examples/wordfreq/`
+demonstrating the full upgraded workflow; `.markdownlint.json` config + GitHub Actions
+`lint.yml` CI + badge; README polish — P9 closed). All four phases complete.
 **Audience:** this is a working document. It records the problems found in the current
 workflow and the redesign decisions made to fix them. It is written to be reviewed by an
 independent agent for quality control before implementation begins.
@@ -199,6 +201,7 @@ design; per-task commits make every executor mistake cheaply revertible.
 ### Testing and verification
 
 **D9 — Test ownership is split three ways.**
+
 - **Planner** specifies acceptance criteria (the *what*) at planning time, derived from
   blueprints. Spec-level bias surfaces at plan approval, where the user can see it.
 - **Developer executor** writes white-box unit tests while implementing — it needs them
@@ -213,6 +216,7 @@ design; per-task commits make every executor mistake cheaply revertible.
 
 Hard rules to be written into the Verifier and orchestrator skill files (review Q4 and
 §3.6 — rules in prose or risk tables don't execute):
+
 1. Derive tests from the blueprint **before** reading the Planner's acceptance criteria;
    use the criteria as a coverage checklist afterwards.
 2. Explicit **Do not read** block: implementation internals, executor tests, DEVLOG.
@@ -229,6 +233,7 @@ replaced by stubs/fakes planned as explicit tasks. The last task of every compon
 is the gate: "component contract tests green in isolation" (Verifier run). The final phase
 is integration: replace fakes with real components, add end-to-end tests. Fixes P7.
 Concretized per review Q5:
+
 1. Fakes implement the blueprint interface **exactly** (same signatures, same schemas),
    live in a dedicated `tests/fakes/`, and are written as explicit tasks.
 2. Integration tests are specified by the **Planner at planning time** (as tasks with

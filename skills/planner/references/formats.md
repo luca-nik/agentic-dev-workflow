@@ -46,6 +46,7 @@ You produce three artifacts in `agentic/plan/`:
 ```
 
 Conventions:
+
 - Task IDs are **globally sequential** (TASK-001, TASK-002, …) across all phases and
   the backlog — never per-phase ID ranges. IDs are never reused.
 - Mark `[x]` on completion immediately — not at session end

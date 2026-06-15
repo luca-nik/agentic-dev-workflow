@@ -3,6 +3,7 @@
 ## agentic/logs/DEVLOG.md
 
 Append at session start (before any code changes):
+
 ```markdown
 ## [YYYY-MM-DD] — Session [N]
 
@@ -13,6 +14,7 @@ Conventions brief (seeded from previous session, or empty):
 ```
 
 Append at session end:
+
 ```markdown
 ### End
 Implemented: [TASK-NNN list]

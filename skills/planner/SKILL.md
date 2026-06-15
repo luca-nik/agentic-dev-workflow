@@ -12,6 +12,7 @@ For output file formats (TASKS.md index, work orders, DEVELOPMENT_PLAN.md), see 
 ## Folder Structure
 
 All workflow documents live in `agentic/`:
+
 ```
 agentic/
   blueprints/
@@ -21,6 +22,7 @@ agentic/
     DEVELOPMENT_PLAN.md
   logs/
 ```
+
 If `agentic/plan/` or `agentic/plan/tasks/` doesn't exist, create it before writing anything.
 
 ## Startup Protocol

@@ -12,12 +12,14 @@ For log formats, the executor return format, and commit conventions, see `refere
 ## Folder Structure
 
 All workflow documents live in `agentic/`:
+
 ```
 agentic/
   blueprints/
   plan/         ← TASKS.md (index), tasks/TASK-NNN.md (work orders)
   logs/         ← DEVLOG.md, AGENT_LOG.md, DEVIATIONS.md, CLARIFICATIONS.md
 ```
+
 If `agentic/logs/` doesn't exist, create it before writing anything.
 
 ## What You Read — and Don't
@@ -62,6 +64,7 @@ You read: `TASKS.md`, work orders, `DEVELOPMENT_PLAN.md`, the logs. You do **not
 Executors decide alone everything *inside* the work order's boundaries: implementation approach within a function, naming, test structure, file organization within the Modify list. Their work order tells them when to stop and escalate — that is the "If unspecified" section.
 
 **You spawn the Planner — don't ask the user — for:**
+
 - Any executor `NEEDS_DECISION`
 - A work order missing or not self-contained (readiness check failures)
 - New file/module/dependency or API contract change not covered by the plan
@@ -71,6 +74,7 @@ Executors decide alone everything *inside* the work order's boundaries: implemen
 The reason to route through Planner rather than asking the user directly: the user shouldn't need to think about implementation-level questions. Planner has the blueprints and can decide. Save the user for things that genuinely require their judgment.
 
 **AskUserQuestion — last resort:**
+
 - Only when a spawned Planner returns `NEEDS_USER_INPUT` (its own, or propagated from an Architect). Subagents cannot talk to the user — you are the top-level agent, so asking is your job: relay the question as returned, then re-spawn the Planner with the same context plus the user's answer.
 - `operator` tasks and `Human review: required` pauses (by design, not escalation)
 - Security or compliance implications

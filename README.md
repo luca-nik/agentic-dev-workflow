@@ -3,15 +3,17 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Claude Code](https://img.shields.io/badge/Claude_Code-skills-blueviolet)
 ![Agents](https://img.shields.io/badge/agents-4-orange)
+![Lint](https://github.com/luca-nik/agentic-dev-workflow/actions/workflows/lint.yml/badge.svg)
 
 > **Stop context-switching between code and AI.** A structured four-agent workflow for Claude Code that keeps design, planning, implementation, and verification cleanly separated — with a decision authority matrix that ensures agents resolve blockers autonomously before ever interrupting you.
 
 ---
-<img width="2912" height="1440" alt="Gemini_Generated_Image_12bbya12bbya12bb" src="https://github.com/user-attachments/assets/96d9fd27-b374-4292-a5d4-4877f9cbe27b" />
+<img width="2912" height="1440" alt="agentic-dev-workflow — Architect, Planner, Developer and Verifier agents collaborating through blueprints, work orders and logs" src="https://github.com/user-attachments/assets/96d9fd27-b374-4292-a5d4-4877f9cbe27b" />
 
 ## The problem
 
 When you build with AI agents today, you either:
+
 - Get interrupted constantly with questions the agent should answer itself
 - Let the agent run loose and come back to find it diverged from what you intended
 
@@ -74,15 +76,19 @@ Each phase gate follows the same rule: **agent surfaces findings → user decide
 ## The Agents
 
 ### `/architect` — Design collaborator
+
 Asks focused questions, proposes one clear recommendation per decision, writes blueprints. Never writes code. Never proceeds without your sign-off. When asked to review, audits all blueprints for completeness and consistency. **Structural decisions are never guessed at**: when context is insufficient — even as a subagent — it escalates to you (as a subagent, by returning `NEEDS_USER_INPUT` up the chain; the top-level agent asks).
 
 ### `/planner` — Bridge between design and implementation
+
 Checks blueprints are plannable before planning. Resolves gaps via Architect subagent (who may surface questions to the user). Produces `DEVELOPMENT_PLAN.md` and `TASKS.md`. Also spawned on-demand by Developer during implementation.
 
 ### `/developer` — Implementation orchestrator
+
 Validates work orders, then spawns a **fresh executor subagent per task** — clean context every time, model tier chosen per task by the Planner. Re-runs each task's acceptance commands itself before marking it done (an executor's "done" doesn't count), commits per task, and routes blockers to Planner subagents — reaching you only as a last resort. The only agent that truly shields the user from implementation noise.
 
 ### `/verifier` — Independent auditor (service agent)
+
 At every component gate, writes **black-box contract tests derived from the blueprint** — deliberately blind to the implementation, its unit tests, and the dev log. An implementer who misreads the spec writes code *and* tests that share the misreading; the Verifier is the second, independent interpretation that catches it. Failures become fix tasks for fresh executors (max two rounds, then it's a design defect for the Planner). Also invocable on demand to audit any existing component. Honest limit: two LLMs share training priors — the Verifier reduces correlated misreading, it doesn't eliminate it; the mechanical checks and your plan approval are the only fully independent verdicts.
 
 ---
@@ -184,27 +190,34 @@ Symlinks mean updates to this repo are reflected immediately — no reinstall ne
 
 ## Usage
 
-**1. Set up your project**
+### 1. Set up your project
+
 ```bash
 cp templates/CLAUDE.md your-project/CLAUDE.md
 ```
 
-**2. Design**
+### 2. Design
+
 ```
 /architect
 ```
+
 Architect asks questions, you answer, blueprints are written to `agentic/blueprints/`.
 
-**3. Plan**
+### 3. Plan
+
 ```
 /planner
 ```
+
 Planner validates blueprints, resolves gaps autonomously, reports to you, produces `agentic/plan/`.
 
-**4. Implement**
+### 4. Implement
+
 ```
 /developer
 ```
+
 Developer validates tasks, resolves issues autonomously, reports to you, implements. You only get interrupted if the full agent chain is stuck.
 
 ---
@@ -232,9 +245,16 @@ agentic-dev-workflow/
     DEVELOPMENT_PLAN.md
     TASKS.md
     WORK_ORDER.md
+  examples/
+    wordfreq/          ← runnable end-to-end demo (blueprints, work orders, logs, tests)
+  .github/workflows/
+    lint.yml           ← markdownlint on push/PR
+  .markdownlint.json
   LICENSE
   README.md
 ```
+
+A worked example lives in [`examples/wordfreq/`](examples/wordfreq/) — a tiny two-component project showing blueprints with acceptance examples, self-contained work orders, component phasing with a fake, a Verifier-written contract test, and the full log trail. Run it with `cd examples/wordfreq && PYTHONPATH=src python -m pytest -q`.
 
 ---
 
