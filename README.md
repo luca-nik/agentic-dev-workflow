@@ -7,8 +7,6 @@
 
 > A workflow for **Claude Code** that splits software work across four specialized agents — one to **design**, one to **plan**, one to **build**, and one to **verify** — so the AI resolves what it can on its own and only interrupts you for decisions that are genuinely yours.
 
-<img width="2912" height="1440" alt="agentic-dev-workflow — Architect, Planner, Developer and Verifier agents collaborating through blueprints, work orders and logs" src="https://github.com/user-attachments/assets/96d9fd27-b374-4292-a5d4-4877f9cbe27b" />
-
 ---
 
 ## What is this?
